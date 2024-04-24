@@ -1,0 +1,61 @@
+programa    : declaracoes ALGORITMO corpo FIM_ALGORITMO;
+declaracoes : (decl_local_global)*;
+decl_local_global : declaracao_local | declaracao_global;
+declaracao_local  : DECLARE variavel
+                  | CONSTANTE IDENT ':' tipo_basico '=' valor_constante
+                  | TIPO IDENT ':' tipo;
+variavel   : identificador (',' identificador)* ':' tipo;
+identificador : IDENT ('.' IDENT)* dimensao;
+dimensao   : ('[' exp_aritmetica ']')*;
+tipo       : registro | tipo_estendido;
+tipo_basico : LITERAL | INTEIRO | REAL | LOGICO;
+tipo_basico_ident : tipo_basico | IDENT;
+tipo_estendido : (PONTEIRO)? tipo_basico_ident;
+valor_constante : CADEIA | NUM_INT | NUM_REAL | VERDADEIRO | FALSO;
+registro : REGISTRO (variavel)* FIM_REGISTRO;
+declaracao_global : PROCEDIMENTO IDENT '(' (parametros)* ')' (declaracao_local)* (cmd)*
+                | FIM_PROCEDIMENTO
+                | FUNCAO IDENT '(' (parametros)* ')' ':' tipo_estendido (declaracao_local)*
+                  (cmd)* FIM_FUNCAO;
+parametro : (VAR)? identificador (',' identificador)* ':' tipo_estendido;
+parametros : parametro (',' parametro)*;
+corpo : (declaracao_local)* (cmd)*;
+cmd   : cmdLeia | cmdEscreva | cmdSe | cmdCaso | cmdPara | cmdEnquanto
+      | cmdFaca | cmdAtribuicao | cmdChamada | cmdRetorne;
+cmdLeia : LEIA '(' identificador (',' (PONTEIRO)? identificador)* ')';
+cmdEscreva : ESCREVA '(' expressao (',' expressao)* ')';
+cmdSe  : SE expressao ENTAO (cmd)* (SENAO (cmd)*)? FIM_SE;
+cmdCaso : CASO exp_aritmetica SEJA selecao (SENAO (cmd)*)? FIM_CASO;
+cmdPara : PARA IDENT ATRIBUICAO exp_aritmetica ATE exp_aritmetica FACA (cmd)* FIM_PARA;
+cmdEnquanto : ENQUANTO expressao FACA (cmd)* FIM_ENQUANTO;
+cmdFaca : FACA (cmd)* ATE expressao;
+cmdAtribuicao : (PONTEIRO)? identificador ATRIBUICAO expressao;
+cmdChamada : IDENT '(' expressao (',' expressao)* ')';
+cmdRetorne : RETORNE expressao;
+selecao : (item_selecao)*;
+item_selecao : constantes ':' (cmd)*;
+constantes : numero_intervalo (',' numero_intervalo)*;
+numero_intervalo : (op_unario)? NUM_INT ('..' (op_unario)? NUM_INT)?;
+op_unario : MENOS;
+exp_aritmetica : termo (op1 termo)*;
+termo : fator (op2 fator)*;
+fator : parcela (op3 parcela)*;
+op1 : MAIS | MENOS;
+op2 : MULTIPLICACAO | DIVISAO;
+op3 : PONTEIRO;
+parcela : (op_unario)? parcela_unario | parcela_nao_unario;
+parcela_unario : (PONTEIRO)? identificador
+           | IDENT '(' expressao (',' expressao)* ')'
+           | NUM_INT
+           | NUM_REAL
+           | '(' expressao ')';
+parcela_nao_unario : ENDERECO identificador | CADEIA;
+exp_relacional : exp_aritmetica (op_relacional exp_aritmetica)?;
+op_relacional : IGUAL | DIFERENTE | MAIOR | MENOR | MAIOR_IGUAL | MENOR_IGUAL;
+expressao : termo_logico (op_logico_1 termo_logico)*;
+termo_logico : fator_logico (op_logico_2 fator_logico)*;
+fator_logico : (NAO)? parcela_logica;
+parcela_logica : ( VERDADEIRO | FALSO )
+          | '(' expressao ')';
+op_logico_1 : OU;
+op_logico_2 : E;
